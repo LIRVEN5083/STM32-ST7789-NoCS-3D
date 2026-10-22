@@ -3,6 +3,15 @@
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_spi.h"
+#include "stm32f4xx_ll_adc.h"
+#include <stdlib.h>
+
+#define STICK_PIN_X     LL_GPIO_PIN_0  // PB0 -> Ось X (Канал ADC1_IN8)
+#define STICK_PIN_Y     LL_GPIO_PIN_1  // PB1 -> Ось Y (Канал ADC1_IN9)
+#define STICK_BTN_PIN   LL_GPIO_PIN_2  // PB2 -> Кнопка нажатия стика
+
+#define ADC_CHANNEL_X   LL_ADC_CHANNEL_8 // Соответствует PB0
+#define ADC_CHANNEL_Y   LL_ADC_CHANNEL_9 // Соответствует PB1
 
 #define GPIO_PORT       GPIOA
 #define PIN_RST         LL_GPIO_PIN_0 // PA0

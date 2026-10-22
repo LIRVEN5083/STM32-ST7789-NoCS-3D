@@ -1,6 +1,6 @@
 #include "init.hpp"
 
-void Hardware_Init(void) {
+void SPI1_Init(void) {
     LL_GPIO_InitTypeDef gpio_init = {0};
     LL_SPI_InitTypeDef spi_init = {0};
 
@@ -66,4 +66,40 @@ void ST7789_Init(void) {
     ST7789_SendCommand(0x29); 
     delay(50);
     BLK_ON(); 
+}
+
+void ADC_and_Button_Init(void) {
+    LL_GPIO_InitTypeDef gpio_init = {0};
+
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC1);
+
+    gpio_init.Pin = STICK_PIN_X | STICK_PIN_Y;
+    gpio_init.Mode = LL_GPIO_MODE_ANALOG;
+    gpio_init.Pull = LL_GPIO_PULL_NO;
+    LL_GPIO_Init(GPIOB, &gpio_init);
+
+    gpio_init.Pin = STICK_BTN_PIN;
+    gpio_init.Mode = LL_GPIO_MODE_INPUT;
+    gpio_init.Pull = LL_GPIO_PULL_UP; 
+    LL_GPIO_Init(GPIOB, &gpio_init);
+
+    LL_ADC_CommonInitTypeDef adc_common_init = {0};
+    adc_common_init.CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV4;
+    LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(ADC1), &adc_common_init);
+
+    LL_ADC_InitTypeDef adc_init = {0};
+    adc_init.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+    adc_init.Resolution = LL_ADC_RESOLUTION_12B;
+    LL_ADC_Init(ADC1, &adc_init);
+
+    LL_ADC_REG_InitTypeDef adc_reg_init = {0};
+    adc_reg_init.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+    adc_reg_init.SequencerLength = LL_ADC_REG_SEQ_SCAN_DISABLE;
+    adc_reg_init.SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
+    adc_reg_init.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+    LL_ADC_REG_Init(ADC1, &adc_reg_init);
+
+    LL_ADC_Enable(ADC1);
+    delay(10);
 }
