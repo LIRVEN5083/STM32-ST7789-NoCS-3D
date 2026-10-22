@@ -9,7 +9,7 @@ bool enable_idle_animation = false;
 
 // Переключение всех возможных цветов
 static const uint16_t cube_colors[] = {
-    COLOR_WHITE,
+    COLOR_BLACK,
     COLOR_RED,
     COLOR_GREEN,
     COLOR_BLUE,
