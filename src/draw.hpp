@@ -35,18 +35,18 @@ static const uint8_t cube_edges[12][2] = {
 // Массив для хранения текущих рассчитанных 2D точек экрана
 static Point2D projected_points[8];
 
-// Углы поворота куба по трем осям 
-static float angleX = 0.0f;
-static float angleY = 0.0f;
-static float angleZ = 0.0f;
+struct Quaternion {
+    float x, y, z, w;
+};
+static Quaternion q_current = {0.0f, 0.0f, 0.0f, 1.0f};
 
 // Быстрый алгоритм Брезенхема для рисования линий в frame_buffer
 void DrawLine(int x0, int y0, int x1, int y1, uint16_t color);
 // Альтернативный метод с укаханием толщины
 void DrawLineThick(int x0, int y0, int x1, int y1, int thickness, uint16_t color);
-
+// Подсчет новых координат куба для поворота
+void RotateAxis(Point3D* axis, float sinA, float cosA, int mode);
 // TODO: ФУНКЦИЯ ПОДСЧЕТА
 void Cube3D_Update(float speedX, float speedY, float speedZ);
-
 // TODO: ФУНКЦИЯ ОТРИСОВКИ ble
 void Cube3D_Render(uint16_t color);

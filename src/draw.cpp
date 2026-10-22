@@ -84,41 +84,85 @@ void DrawLineThick(int x0, int y0, int x1, int y1, int thickness, uint16_t color
     }
 }
 
+void RotateAxis(Point3D* axis, float sinA, float cosA, int mode) {
+    float tmp1, tmp2;
+    if (mode == 0) {
+        tmp1 = axis->y * cosA - axis->z * sinA;
+        tmp2 = axis->y * sinA + axis->z * cosA;
+        axis->y = tmp1;
+        axis->z = tmp2;
+    } else if (mode == 1) {
+        tmp1 = axis->x * cosA + axis->z * sinA;
+        tmp2 = -axis->x * sinA + axis->z * cosA;
+        axis->x = tmp1;
+        axis->z = tmp2;
+    } else {
+        tmp1 = axis->x * cosA - axis->y * sinA;
+        tmp2 = axis->x * sinA + axis->y * cosA;
+        axis->x = tmp1;
+        axis->y = tmp2;
+    }
+}
+
 void Cube3D_Update(float speedX, float speedY, float speedZ) {
-    angleX += speedX;
-    angleY += speedY;
-    angleZ += speedZ;
+    float halfX = speedX * 0.5f;
+    float halfY = speedY * 0.5f;
+    float halfZ = speedZ * 0.5f;
 
-    float cx = cosf(angleX), sx = sinf(angleX);
-    float cy = cosf(angleY), sy = sinf(angleY);
-    float cz = cosf(angleZ), sz = sinf(angleZ);
+    float sx = sinf(halfX), cx = cosf(halfX);
+    float sy = sinf(halfY), cy = cosf(halfY);
+    float sz = sinf(halfZ), cz = cosf(halfZ);
 
-    float camera_distance = 180.0f; 
+    Quaternion q_step;
+    q_step.x = sx * cy * cz - cx * sy * sz;
+    q_step.y = cx * sy * cz + sx * cy * sz;
+    q_step.z = cx * cy * sz - sx * sy * cz;
+    q_step.w = cx * cy * cz + sx * sy * sz;
+
+    Quaternion q_next;
+    q_next.w = q_step.w * q_current.w - q_step.x * q_current.x - q_step.y * q_current.y - q_step.z * q_current.z;
+    q_next.x = q_step.w * q_current.x + q_step.x * q_current.w + q_step.y * q_current.z - q_step.z * q_current.y;
+    q_next.y = q_step.w * q_current.y - q_step.x * q_current.z + q_step.y * q_current.w + q_step.z * q_current.x;
+    q_next.z = q_step.w * q_current.z + q_step.x * q_current.y - q_step.y * q_current.x + q_step.z * q_current.w;
+
+    float len = sqrtf(q_next.x * q_next.x + q_next.y * q_next.y + q_next.z * q_next.z + q_next.w * q_next.w);
+    if (len > 0.0f) {
+        q_current.x = q_next.x / len;
+        q_current.y = q_next.y / len;
+        q_current.z = q_next.z / len;
+        q_current.w = q_next.w / len;
+    }
+
+    float xx = q_current.x * q_current.x;
+    float xy = q_current.x * q_current.y;
+    float xz = q_current.x * q_current.z;
+    float xw = q_current.x * q_current.w;
+    float yy = q_current.y * q_current.y;
+    float yz = q_current.y * q_current.z;
+    float yw = q_current.y * q_current.w;
+    float zz = q_current.z * q_current.z;
+    float zw = q_current.z * q_current.w;
+
+    float r00 = 1.0f - 2.0f * (yy + zz); float r01 = 2.0f * (xy - zw);        float r02 = 2.0f * (xz + yw);
+    float r10 = 2.0f * (xy + zw);        float r11 = 1.0f - 2.0f * (xx + zz); float r12 = 2.0f * (yz - xw);
+    float r20 = 2.0f * (xz - yw);        float r21 = 2.0f * (yz + xw);        float r22 = 1.0f - 2.0f * (xx + yy);
+
+    const float camera_distance = 180.0f; 
+
 
     for (int i = 0; i < 8; i++) {
-        // Текущая вершина куба
         float x = cube_vertices[i].x;
         float y = cube_vertices[i].y;
         float z = cube_vertices[i].z;
 
-        // Вращение по оси X
-        float y1 = y * cx - z * sx;
-        float z1 = y * sx + z * cx;
+        float x_rot = x * r00 + y * r01 + z * r02;
+        float y_rot = x * r10 + y * r11 + z * r12;
+        float z_rot = x * r20 + y * r21 + z * r22;
 
-        // Вращение по оси Y
-        float x2 = x * cy + z1 * sy;
-        float z2 = -x * sy + z1 * cy;
-
-        // Вращение по оси Z
-        float x3 = x2 * cz - y1 * sz;
-        float y3 = x2 * sz + y1 * cz;
-
-        // Проекция 3D пространства на 2D плоскость экрана (с учетом перспективы)
-        float depth = 1.0f / (camera_distance - z2);
+        float depth = 1.0f / (camera_distance - z_rot);
         
-        // Сдвигаем координаты на центр экрана 240х240 (то есть +120)
-        projected_points[i].x = (int)(120 + x3 * camera_distance * depth);
-        projected_points[i].y = (int)(120 + y3 * camera_distance * depth);
+        projected_points[i].x = (int)(120 + x_rot * camera_distance * depth);
+        projected_points[i].y = (int)(120 + y_rot * camera_distance * depth);
     }
 }
 

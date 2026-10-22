@@ -4,6 +4,24 @@
 #include "colors.hpp"
 
 __attribute__((aligned(4))) uint16_t frame_buffer[240 * 240];
+// Флаг включение/выключения когда фигура сама по себе крутится типо IDLE анимация
+bool enable_idle_animation = false;
+
+// Переключение всех возможных цветов
+static const uint16_t cube_colors[] = {
+    COLOR_WHITE,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE,
+    COLOR_YELLOW,
+    COLOR_CYAN,
+    COLOR_MAGENTA,
+    COLOR_ORANGE,
+    COLOR_PURPLE,
+    COLOR_PINK,
+    COLOR_GOLD
+};
+static const uint8_t TOTAL_COLORS = sizeof(cube_colors) / sizeof(cube_colors[0]);
 
 int main(void) {
     init(); 
@@ -18,41 +36,66 @@ int main(void) {
 
     uint32_t delayTime = 0;
 
+    bool button_was_pressed = false;
+    static uint8_t current_color_index = 0;
+
     while (1) {
         x_val = ADC_ReadChannel(ADC_CHANNEL_X);
         y_val = ADC_ReadChannel(ADC_CHANNEL_Y);
 
-        // Логика цвета: по умолчанию белый
-        uint16_t color = COLOR_WHITE;
+        if (LL_GPIO_IsInputPinSet(GPIOB, STICK_BTN_PIN) == 0) {
+            if (!button_was_pressed) {
+                current_color_index++;
+                
+                if (current_color_index >= TOTAL_COLORS) {
+                    current_color_index = 0;
+                }
+                
+                button_was_pressed = true;
+            }
+        } else {
+            button_was_pressed = false;
+        }
 
-        // Быстрая проверка выхода за пороги без тяжелой математики
+        float current_speedX = 0.00f;
+        float current_speedY = 0.00f;
+        bool stick_moved = false;
+
         if (x_val > STICK_MAX) {
-            Cube3D_Update(0.03f, 0.04f, 0.01f);
-            color = COLOR_RED;
+            current_speedY = 0.08f;
+            stick_moved = true;
         } 
         else if (x_val < STICK_MIN) {
-            Cube3D_Update(-0.03f, 0.04f, 0.01f);
-            color = COLOR_WHITE; // Твой дефолтный цвет
+            current_speedY = -0.08f;
+            stick_moved = true;
         }
 
         if (y_val > STICK_MAX) {
-            Cube3D_Update(0.03f, 0.04f, 0.01f);
-            color = COLOR_GREEN;
+            current_speedX = -0.08f;
+            stick_moved = true;
         }
         else if (y_val < STICK_MIN) {
-            Cube3D_Update(0.03f, -0.04f, 0.01f);
+            current_speedX = 0.08f;
+            stick_moved = true;
         }
 
-        // Если стик в мертвой зоне — просто обновляем сцену дефолтным вращением
-        if (x_val >= STICK_MIN && x_val <= STICK_MAX && y_val >= STICK_MIN && y_val <= STICK_MAX) {
-            Cube3D_Update(0.01f, 0.01f, 0.01f);
+        if (stick_moved) {
+            Cube3D_Update(current_speedX, current_speedY, 0.00f);
+        } else {
+            if (enable_idle_animation) {
+                Cube3D_Update(0.01f, 0.01f, 0.00f);
+            } else {
+                Cube3D_Update(0.00f, 0.00f, 0.00f);
+            }
         }
 
-        // Вызываем рендер строго ОДИН раз за проход цикла
-        Cube3D_Render(color);
+        Cube3D_Render(cube_colors[current_color_index]);
         
-        // delayTime должен быть 0 для максимального FPS, если дисплей успевает кушать данные
-        if (delayTime) delay(delayTime); 
+        if (delayTime) {
+            delay(delayTime);
+        } else {
+            delay(10);
+        }
     }
     return 0;
 }

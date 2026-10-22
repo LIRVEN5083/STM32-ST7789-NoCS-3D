@@ -8,7 +8,7 @@
 
 #define STICK_PIN_X     LL_GPIO_PIN_0  // PB0 -> Ось X (Канал ADC1_IN8)
 #define STICK_PIN_Y     LL_GPIO_PIN_1  // PB1 -> Ось Y (Канал ADC1_IN9)
-#define STICK_BTN_PIN   LL_GPIO_PIN_2  // PB2 -> Кнопка нажатия стика
+#define STICK_BTN_PIN   LL_GPIO_PIN_10  // PB10 -> Кнопка нажатия стика
 
 #define ADC_CHANNEL_X   LL_ADC_CHANNEL_8 // Соответствует PB0
 #define ADC_CHANNEL_Y   LL_ADC_CHANNEL_9 // Соответствует PB1
@@ -26,3 +26,4 @@
 #define BLK_ON()        LL_GPIO_SetOutputPin(GPIO_PORT, PIN_BLK)
 
 extern __attribute__((aligned(4))) uint16_t frame_buffer[240 * 240];
+extern bool enable_idle_animation;

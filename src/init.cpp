@@ -79,9 +79,12 @@ void ADC_and_Button_Init(void) {
     gpio_init.Pull = LL_GPIO_PULL_NO;
     LL_GPIO_Init(GPIOB, &gpio_init);
 
+    gpio_init = {0}; 
+
     gpio_init.Pin = STICK_BTN_PIN;
     gpio_init.Mode = LL_GPIO_MODE_INPUT;
     gpio_init.Pull = LL_GPIO_PULL_UP; 
+    gpio_init.Speed = LL_GPIO_SPEED_FREQ_LOW;
     LL_GPIO_Init(GPIOB, &gpio_init);
 
     LL_ADC_CommonInitTypeDef adc_common_init = {0};
