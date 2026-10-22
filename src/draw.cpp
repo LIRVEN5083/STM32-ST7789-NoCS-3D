@@ -167,7 +167,7 @@ void Cube3D_Update(float speedX, float speedY, float speedZ) {
 }
 
 void Cube3D_Render(uint16_t color) {
-    ClearBuffer(0x0000);
+    ClearBuffer(0xFFFF);
     int thickness = 5;
 
     // Проходим по всем 12 ребрам куба и рисуем их линиями Брезенхема

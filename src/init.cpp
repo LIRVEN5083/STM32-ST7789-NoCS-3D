@@ -33,7 +33,7 @@ void SPI1_Init(void) {
     spi_init.ClockPolarity = LL_SPI_POLARITY_HIGH; 
     spi_init.ClockPhase = LL_SPI_PHASE_2EDGE;     
     spi_init.NSS = LL_SPI_NSS_SOFT;                
-    spi_init.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV4; // 24 МГц!
+    spi_init.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV2; // 48Mhz
     spi_init.BitOrder = LL_SPI_MSB_FIRST;
     spi_init.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
     LL_SPI_Init(SPI1, &spi_init);
