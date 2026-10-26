@@ -3,7 +3,11 @@
 ---
 
 ## Demonstration
-<img width="538" height="548" alt="Demonstration" src="https://github.com/user-attachments/assets/0167f6bd-80ee-4745-bfe0-6c3da7dbf907" />
+
+
+https://github.com/user-attachments/assets/9ba6d7ae-1e50-4280-8999-9b5703562d07
+
+
 
 ---
 
@@ -29,5 +33,5 @@
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
